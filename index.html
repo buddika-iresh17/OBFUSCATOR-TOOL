@@ -1,73 +1,304 @@
-<!DOCTYPE html>  <html lang="en">  
-<head>  
-  <meta charset="UTF-8" />  
-  <meta name="viewport" content="width=device-width, initial-scale=1" />  
-  <title>JS Obfuscator Tool</title>  
-  <style>  
-    body {  
-      font-family: Arial, sans-serif;  
-      max-width: 700px;  
-      margin: 30px auto;  
-      padding: 0 15px;  
-    }  
-    textarea {  
-      width: 100%;  
-      height: 150px;  
-      font-family: monospace;  
-      font-size: 14px;  
-      margin-bottom: 10px;  
-      padding: 10px;  
-      box-sizing: border-box;  
-    }  
-    button {  
-      padding: 10px 20px;  
-      font-size: 16px;  
-      cursor: pointer;  
-    }  
-    pre {  
-      white-space: pre-wrap;  
-      background: #f5f5f5;  
-      padding: 10px;  
-      border: 1px solid #ddd;  
-      height: 150px;  
-      overflow-y: auto;  
-    }  
-  </style>  
-</head>  
-<body>    <h1>JavaScript Obfuscator Tool</h1>  <label for="inputCode">Input JavaScript Code:</label><br/>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JS Obfuscator & Deobfuscator Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 0 15px;
+      background: rgb(245, 250, 255);
+      color: rgb(20, 40, 60);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: rgb(0, 70, 200);
+      text-shadow: 1px 1px 3px rgb(150, 190, 255);
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      justify-content: center;
+      gap: 10px;
+    }
+    .tab-btn {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: 1px solid rgb(0, 120, 255);
+      background: rgb(230, 240, 255);
+      color: rgb(0, 80, 200);
+      border-radius: 5px;
+      user-select: none;
+      transition: background-color 0.3s, color 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 120, 255, 0.3);
+    }
+    .tab-btn:hover {
+      background: rgb(200, 220, 255);
+      color: rgb(0, 50, 160);
+    }
+    .tab-btn.active {
+      background: linear-gradient(45deg, rgb(0, 110, 255), rgb(0, 70, 200));
+      color: white;
+      box-shadow: 0 4px 8px rgba(0, 70, 200, 0.8);
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+      margin-top: 10px;
+      color: rgb(10, 40, 90);
+    }
+    textarea {
+      width: 100%;
+      height: 180px;
+      font-family: monospace;
+      font-size: 14px;
+      margin-bottom: 10px;
+      padding: 10px;
+      box-sizing: border-box;
+      resize: vertical;
+      border: 1px solid rgb(180, 200, 230);
+      border-radius: 4px;
+      background-color: rgb(250, 255, 255);
+      color: rgb(20, 40, 60);
+      box-shadow: inset 0 1px 3px rgb(200, 220, 240);
+      transition: border-color 0.3s;
+    }
+    textarea:focus {
+      border-color: rgb(0, 120, 255);
+      outline: none;
+      box-shadow: 0 0 5px rgb(0, 120, 255);
+    }
+    input[type="file"] {
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 5px;
+      background: rgb(0, 110, 255);
+      color: white;
+      box-shadow: 0 3px 6px rgba(0, 80, 180, 0.7);
+      transition: background 0.3s;
+    }
+    button:disabled {
+      background: rgb(180, 200, 230);
+      cursor: not-allowed;
+      box-shadow: none;
+      color: rgb(100, 110, 130);
+    }
+    button:hover:not(:disabled) {
+      background: rgb(0, 140, 255);
+      box-shadow: 0 4px 10px rgba(0, 100, 230, 0.9);
+    }
+    pre {
+      white-space: pre-wrap;
+      background: rgb(230, 240, 255);
+      padding: 10px;
+      border: 1px solid rgb(190, 210, 240);
+      height: 180px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 14px;
+      margin-bottom: 10px;
+      user-select: text;
+      border-radius: 4px;
+      box-shadow: inset 0 1px 3px rgb(200, 220, 240);
+      color: rgb(10, 40, 90);
+    }
+    #outputSection {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>JavaScript Obfuscator & Deobfuscator Tool</h1>
 
-  <textarea id="inputCode" placeholder="Write or paste your JS code here..."></textarea>  <button id="btnObfuscate">Obfuscate Code</button>
+  <div class="tabs">
+    <button id="tabObfuscate" class="tab-btn active">Obfuscate</button>
+    <button id="tabDeobfuscate" class="tab-btn">Deobfuscate</button>
+  </div>
 
-  <h2>Obfuscated Output:</h2>  
-  <pre id="outputCode"></pre>    <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator@4.0.0/dist/index.browser.js"></script>    <script>  
-    const btn = document.getElementById('btnObfuscate');  
-    const inputCode = document.getElementById('inputCode');  
-    const outputCode = document.getElementById('outputCode');  
-  
-    btn.addEventListener('click', () => {  
-      const code = inputCode.value.trim();  
-      if (!code) {  
-        alert('Please enter some JavaScript code to obfuscate.');  
-        return;  
-      }  
-  
-      try {  
-        // Obfuscate the code using the JS obfuscator library  
-        const obfuscatedCode = JavaScriptObfuscator.obfuscate(code, {  
-          compact: true,  
-          controlFlowFlattening: true,  
-          controlFlowFlatteningThreshold: 0.75,  
-          numbersToExpressions: true,  
-          simplify: true,  
-          stringArrayShuffle: true,  
-          splitStrings: true,  
-          stringArrayThreshold: 0.75  
-        }).getObfuscatedCode();  
-  
-        outputCode.textContent = obfuscatedCode;  
-      } catch (e) {  
-        outputCode.textContent = 'Error during obfuscation: ' + e.message;  
-      }  
-    });  
-  </script>  </body>  
-</html>  
+  <div id="obfuscateSection">
+    <label for="fileInput">Upload JavaScript File (optional):</label>
+    <input type="file" id="fileInput" accept=".js" />
+
+    <label for="inputCodeObf">Or paste your JS code here:</label>
+    <textarea id="inputCodeObf" placeholder="Write or paste your JS code here..."></textarea>
+
+    <button id="btnObfuscate">Obfuscate Code</button>
+    <button id="btnDownloadObf" disabled>Download Obfuscated Code</button>
+
+    <div id="outputSectionObf">
+      <h2>Obfuscated Output:</h2>
+      <pre id="outputCodeObf"></pre>
+    </div>
+  </div>
+
+  <div id="deobfuscateSection" style="display:none;">
+    <label for="inputCodeDeobf">Paste your obfuscated JS code here:</label>
+    <textarea id="inputCodeDeobf" placeholder="Paste obfuscated JS code here..."></textarea>
+
+    <button id="btnBeautify">Beautify / Deobfuscate</button>
+    <button id="btnDownloadDeobf" disabled>Download Beautified Code</button>
+
+    <div id="outputSectionDeobf">
+      <h2>Beautified Output:</h2>
+      <pre id="outputCodeDeobf"></pre>
+    </div>
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator@4.0.0/dist/index.browser.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-beautify@1.14.0/js/lib/beautify.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-beautify@1.14.0/js/lib/beautify-js.js"></script>
+
+  <script>
+    // Tabs switching
+    const tabObfuscate = document.getElementById('tabObfuscate');
+    const tabDeobfuscate = document.getElementById('tabDeobfuscate');
+    const obfuscateSection = document.getElementById('obfuscateSection');
+    const deobfuscateSection = document.getElementById('deobfuscateSection');
+
+    tabObfuscate.addEventListener('click', () => {
+      tabObfuscate.classList.add('active');
+      tabDeobfuscate.classList.remove('active');
+      obfuscateSection.style.display = '';
+      deobfuscateSection.style.display = 'none';
+    });
+
+    tabDeobfuscate.addEventListener('click', () => {
+      tabDeobfuscate.classList.add('active');
+      tabObfuscate.classList.remove('active');
+      obfuscateSection.style.display = 'none';
+      deobfuscateSection.style.display = '';
+    });
+
+    // --- Obfuscator ---
+    const fileInput = document.getElementById('fileInput');
+    const inputCodeObf = document.getElementById('inputCodeObf');
+    const btnObfuscate = document.getElementById('btnObfuscate');
+    const outputCodeObf = document.getElementById('outputCodeObf');
+    const btnDownloadObf = document.getElementById('btnDownloadObf');
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (!file.name.endsWith('.js')) {
+        alert('Please upload a valid JavaScript (.js) file.');
+        fileInput.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        inputCodeObf.value = event.target.result;
+      };
+      reader.readAsText(file);
+    });
+
+    btnObfuscate.addEventListener('click', () => {
+      const code = inputCodeObf.value.trim();
+      if (!code) {
+        alert('Please enter or upload some JavaScript code to obfuscate.');
+        return;
+      }
+
+      try {
+        const obfuscatedCode = JavaScriptObfuscator.obfuscate(code, {
+          compact: true,
+          controlFlowFlattening: true,
+          controlFlowFlatteningThreshold: 0.75,
+          numbersToExpressions: true,
+          simplify: true,
+          stringArrayShuffle: true,
+          splitStrings: true,
+          stringArrayThreshold: 0.75
+        }).getObfuscatedCode();
+
+        outputCodeObf.textContent = obfuscatedCode;
+        btnDownloadObf.disabled = false;
+      } catch (e) {
+        outputCodeObf.textContent = 'Error during obfuscation: ' + e.message;
+        btnDownloadObf.disabled = true;
+      }
+    });
+
+    btnDownloadObf.addEventListener('click', () => {
+      const obfuscatedText = outputCodeObf.textContent;
+      if (!obfuscatedText) return;
+
+      const blob = new Blob([obfuscatedText], { type: 'application/javascript' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'obfuscated.js';
+      document.body.appendChild(a);
+      a.click();
+
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 0);
+    });
+
+    // --- Deobfuscator / Beautify ---
+    const inputCodeDeobf = document.getElementById('inputCodeDeobf');
+    const btnBeautify = document.getElementById('btnBeautify');
+    const outputCodeDeobf = document.getElementById('outputCodeDeobf');
+    const btnDownloadDeobf = document.getElementById('btnDownloadDeobf');
+
+    btnBeautify.addEventListener('click', () => {
+      const code = inputCodeDeobf.value.trim();
+      if (!code) {
+        alert('Please paste some obfuscated JavaScript code.');
+        return;
+      }
+
+      try {
+        const beautifiedCode = js_beautify(code, {
+          indent_size: 2,
+          space_in_empty_paren: true,
+          jslint_happy: true
+        });
+
+        outputCodeDeobf.textContent = beautifiedCode;
+        btnDownloadDeobf.disabled = false;
+      } catch (e) {
+        outputCodeDeobf.textContent = 'Error during beautification: ' + e.message;
+        btnDownloadDeobf.disabled = true;
+      }
+    });
+
+    btnDownloadDeobf.addEventListener('click', () => {
+      const beautifiedText = outputCodeDeobf.textContent;
+      if (!beautifiedText) return;
+
+      const blob = new Blob([beautifiedText], { type: 'application/javascript' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'beautified.js';
+      document.body.appendChild(a);
+      a.click();
+
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 0);
+    });
+  </script>
+</body>
+</html>
